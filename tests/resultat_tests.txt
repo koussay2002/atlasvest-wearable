@@ -1,0 +1,18 @@
+[OK ] repos : 80 bpm / 36,8 C x10 -> reste OK                        attendu=OK     obtenu=OK    
+[OK ] pic isole : 1 mesure a 150 bpm puis retour 80 -> OK            attendu=OK     obtenu=OK    
+[OK ] 150 bpm x2 -> pas encore d'alerte (confirmation = 3)           attendu=OK     obtenu=OK    
+[OK ] 150 bpm x3 -> ORANGE (seuil sujet 140 bpm)                     attendu=ORANGE obtenu=ORANGE
+[OK ] 185 bpm x3 -> ROUGE                                            attendu=ROUGE  obtenu=ROUGE 
+[OK ] 138 bpm x3 : hysteresis -> descend a ORANGE (> 135)            attendu=ORANGE obtenu=ORANGE
+[OK ] 138 bpm x3 de plus -> reste ORANGE (hysteresis)                attendu=ORANGE obtenu=ORANGE
+[OK ] 130 bpm x3 -> retour OK                                        attendu=OK     obtenu=OK    
+[OK ] 38,2 C x3 -> ORANGE (temperature anormale)                     attendu=ORANGE obtenu=ORANGE
+[OK ] 39,6 C x3 -> ROUGE                                             attendu=ROUGE  obtenu=ROUGE 
+[OK ] 37,0 C x3 -> retour OK apres ROUGE puis ORANGE                 attendu=OK     obtenu=OK    
+[OK ] DHT22 en defaut x3 -> ORANGE (jamais 'normal' par defaut)      attendu=ORANGE obtenu=ORANGE
+[OK ] capteur retabli x3 -> OK                                       attendu=OK     obtenu=OK    
+[OK ] 33,0 C x3 (capteur decroche / hypothermie) -> ORANGE           attendu=ORANGE obtenu=ORANGE
+[OK ] seuil personnalise 160 : 150 bpm x5 -> OK                      attendu=OK     obtenu=OK    
+[OK ] seuil personnalise 160 : 170 bpm x3 -> ORANGE                  attendu=ORANGE obtenu=ORANGE
+
+Resultat : 16/16 tests reussis
