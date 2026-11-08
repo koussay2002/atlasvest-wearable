@@ -14,10 +14,13 @@ Un gilet connecté d'ultra-trail simplifié, **sans aucun matériel**, dans le s
 |---|---|---|
 | DHT22 | température / humidité (peau ou ambiance) | GPIO15 |
 | Potentiomètre | capteur de pouls : 0 → 4095 ⇒ 40 → 200 bpm | GPIO34 (ADC1) |
-| Buzzer | alerte sonore (intermittent = ORANGE, continu = ROUGE) | GPIO25 |
-| LED verte / rouge | niveau OK / alerte | GPIO26 / GPIO27 |
+| Buzzer | alerte sonore (intermittent = ORANGE, continu = ROUGE) | GPIO4 |
+| LED verte / rouge | niveau OK / alerte | GPIO26 / GPIO2 |
 | Bouton | acquittement du buzzer ORANGE pendant 30 s | GPIO14 (pull-up) |
 | Wi-Fi + MQTT | envoi JSON vers le cloud (broker public HiveMQ) | — |
+
+Câblage de départ : exemple Wokwi de Prof. Arnott Ramos Caiado (COMPET Senac PE), adapté (DHT22, potentiomètre, bouton, broches). 
+Le DHT22 est réglé à 36,8 °C par défaut (température corporelle) : à 21 °C, le gilet signalerait « capteur décroché » (T < 34 °C).
 
 Règles du sujet : **buzzer si le pouls dépasse 140 bpm ou si la température est anormale**.
 
@@ -32,8 +35,9 @@ Le pouls est lissé par un filtre EMA (mini traitement « Edge »). Le seuil de 
 
 ## Lancer la simulation (≈ 5 min)
 
-1. Ouvrir <https://wokwi.com> → **New Project → ESP32** (Arduino).
-2. Remplacer/ajouter les fichiers de [`sim/wokwi/`](sim/wokwi) : `sketch.ino`, `alert_logic.h` (nouveau fichier), `diagram.json`, `libraries.txt`.
+1. Ouvrir le projet Wokwi : <https://wokwi.com/projects/480057647083813889>
+   (ou créer un projet ESP32 sur <https://wokwi.com> et y copier les fichiers de `sim/wokwi/`).
+2. Si besoin, remplacer/ajouter les fichiers de [`sim/wokwi/`](sim/wokwi) : `sketch.ino`, `alert_logic.h` (nouveau fichier), `diagram.json`, `libraries.txt`.
 3. Dans `sketch.ino`, rendre `DEVICE_ID` unique (le broker est public et partagé).
 4. Cliquer **Start** : le moniteur série affiche le JSON publié toutes les 2 s.
 
@@ -47,6 +51,14 @@ Le pouls est lissé par un filtre EMA (mini traitement « Edge »). Le seuil de 
 | Cliquer le DHT22 → température 38,5 °C | ORANGE |
 | Température 40 °C | ROUGE |
 | Appuyer sur le bouton en ORANGE | buzzer coupé 30 s (ROUGE non acquittable) |
+
+**À quoi sert le bouton ?** C'est l'*acquittement* : en niveau ORANGE, il coupe le buzzer 30 s (l'athlète signale « j'ai vu l'alerte »)
+sans effacer l'alerte (la LED reste active et les données continuent d'être envoyées). En ROUGE il est **sans effet** (sécurité).
+Son action n'est visible que pendant une alerte ORANGE ; le moniteur série affiche `[ACK] ...` à chaque appui.
+
+**Dépannage LED** : au démarrage, un autotest allume la LED verte, la rouge, puis le buzzer ; le moniteur affiche `[TEST] ...` et les broches utilisées.
+Si une LED ne s'allume pas pendant l'autotest, le problème est le câblage (broche, résistance, cathode vers GND), pas la logique.
+La LED intégrée de la carte est aussi sur GPIO2 : elle suit la LED rouge.
 
 **Voir les données dans le cloud**
 
@@ -72,14 +84,21 @@ Résultat : **16/16 scénarios réussis** ([`tests/resultat_tests.txt`](tests/re
 escalade ORANGE → ROUGE, hystérésis, températures haute/basse, capteur en défaut, seuil personnalisé.
 La trace de l'exécution est dans [`data/scenario_trace.csv`](data/scenario_trace.csv).
 
+## Captures de la simulation
+
+| Niveau ORANGE (pouls > 140 bpm, buzzer actif) | Niveau OK (LED verte) |
+|---|---|
+| ![Niveau ORANGE](docs/capture1.jpeg) | ![Niveau OK](docs/capture2.jpeg) |
+
 ## Structure du dépôt
 
 ```
-sim/wokwi/   sketch.ino, alert_logic.h, diagram.json, libraries.txt
+sim/wokwi/   sketch.ino, alert_logic.h, diagram.json, libraries.txt, wokwi-project.txt
 tests/       test_alert_logic.cpp, resultat_tests.txt
 tools/       mqtt_logger.py (MQTT -> CSV)
 analysis/    simulation_debruitage_ECG.py, calculs_antenne_et_puissance.py, resultats_simulation.json
 data/        scenario_trace.csv (+ telemetry_live.csv généré, ignoré par git)
+docs/        captures d'écran de la simulation Wokwi
 report/      AtlasVest_SDD_Wearable_Technology.pdf
 ```
 
